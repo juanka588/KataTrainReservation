@@ -28,7 +28,7 @@ public class WebTicketManager {
         this.trainDataService = trainDataService;
     }
 
-    public String reserve(String train, int seats) {
+    public String reserve(String train, int nbSeats) {
         List<Seat> availableSeats = new ArrayList<Seat>();
         int count = 0;
         String result = "";
@@ -40,7 +40,7 @@ public class WebTicketManager {
         result = jsonTrain;
 
         Train trainInst = new Train(jsonTrain);
-        if ((trainInst.getReservedSeats() + seats) <= Math.floor(ThreasholdManager.getMaxRes() * trainInst.getMaxSeat())) {
+        if (trainHasEnoughSeats(nbSeats, trainInst)) {
             int numberOfReserv = 0;
 
             // find seats to reserve
@@ -48,7 +48,7 @@ public class WebTicketManager {
                 Seat each = (Seat) trainInst.getSeats().toArray()[index];
                 if (each.getBookingRef() == "") {
                     i++;
-                    if (i <= seats) {
+                    if (i <= nbSeats) {
                         availableSeats.add(each);
                     }
                 }
@@ -60,7 +60,7 @@ public class WebTicketManager {
 
             int reservedSeats = 0;
 
-            if (count != seats) {
+            if (count != nbSeats) {
                 return String.format("{\"trainId\": \"%s\", \"bookingReference\": \"\", \"seats\":[]}", train);
             } else {
                 StringBuilder sb = new StringBuilder("{\"trainId\": \"");
@@ -80,7 +80,7 @@ public class WebTicketManager {
                 sb.append(bookingRef);
                 sb.append("\",");
 
-                if (numberOfReserv == seats) {
+                if (numberOfReserv == nbSeats) {
                     trainCaching.save(train, trainInst, bookingRef);
 
                     if (reservedSeats == 0) {
@@ -101,6 +101,10 @@ public class WebTicketManager {
 
         return String.format("{\"trainId\": \"%s\", \"bookingReference\": \"\", \"seats\":[]}", train);
 
+    }
+
+    public boolean trainHasEnoughSeats(int seats, Train trainInst) {
+        return (trainInst.getReservedSeats() + seats) <= Math.floor(ThreasholdManager.getMaxRes() * trainInst.getMaxSeat());
     }
 
     private String dumpSeats(List<Seat> seats) {

@@ -29,4 +29,16 @@ public class WebTicketManagerTest {
         final String reservation = sut.reserve(train, nbSeats);
         assertEquals("{\"trainId\": \"express_2000\",\"bookingReference\": \"bookRef\",\"seats\":[\"1A\"]}", reservation);
     }
+
+    @Test
+    public void reserve_givenNoAvailableSeats_itShouldReturnNoSeats() {
+        final BookingReferenceService bookingReferenceService = new FakeBookingReferenceService();
+        final TrainDataService trainDataService = new FakeTrainDataService();
+        final WebTicketManager sut = new WebTicketManager(bookingReferenceService, trainDataService);
+        final String train = "express_2000";
+        final int nbSeats = 10;
+
+        final String reservation = sut.reserve(train, nbSeats);
+        assertEquals("{\"trainId\": \"express_2000\", \"bookingReference\": \"\", \"seats\":[]}", reservation);
+    }
 }
