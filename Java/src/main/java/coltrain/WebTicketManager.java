@@ -6,6 +6,7 @@ import coltrain.api.models.Seat;
 
 import javax.ws.rs.client.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.joining;
@@ -39,7 +40,6 @@ public class WebTicketManager {
 
         Train trainInst = new Train(jsonTrain);
         if (trainHasEnoughSeats(nbSeats, trainInst)) {
-            int numberOfReserv = 0;
 
             // find seats to reserve
             for (int index = 0, i = 0; index < trainInst.getSeats().size(); index++) {
@@ -52,49 +52,39 @@ public class WebTicketManager {
                 }
             }
 
-            int reservedSeats = 0;
-
             if (availableSeats.size() != nbSeats) {
                 return String.format("{\"trainId\": \"%s\", \"bookingReference\": \"\", \"seats\":[]}", train);
             } else {
-                StringBuilder sb = new StringBuilder("{\"trainId\": \"");
-                sb.append(train);
-                sb.append("\",");
 
                 Client client = ClientBuilder.newClient(new ClientConfig().register(LoggingFilter.class));
                 bookingRef = bookingReferenceService.getBookRef(client);
 
                 for (Seat availableSeat : availableSeats) {
                     availableSeat.setBookingRef(bookingRef);
-                    numberOfReserv++;
-                    reservedSeats++;
                 }
 
-                sb.append("\"bookingReference\": \"");
-                sb.append(bookingRef);
-                sb.append("\",");
 
-                if (numberOfReserv == nbSeats) {
+                if (availableSeats.size() == nbSeats) {
                     trainCaching.save(train, trainInst, bookingRef);
-
-                    if (reservedSeats == 0) {
-                        System.out.println("Reserved seat(s): " + reservedSeats);
-                    }
-
                     trainDataService.doReservation(train, availableSeats, bookingRef);
-
-                    sb.append("\"seats\":");
-                    sb.append(seatsToCommaSeparateValues(availableSeats));
-                    sb.append("}");
-
-
-                    return sb.toString();
+                    return toReservationJsonString(train, availableSeats, bookingRef);
                 }
             }
         }
 
-        return String.format("{\"trainId\": \"%s\", \"bookingReference\": \"\", \"seats\":[]}", train);
+        return toReservationJsonString(train, Collections.emptyList(), "");
 
+    }
+
+    public String toReservationJsonString(String train, List<Seat> availableSeats, String bookingRef) {
+        return "{\"trainId\": \"" + train +
+                "\"," +
+                "\"bookingReference\": \"" +
+                bookingRef +
+                "\"," +
+                "\"seats\":" +
+                seatsToCommaSeparateValues(availableSeats) +
+                "}";
     }
 
     public boolean trainHasEnoughSeats(int seats, Train trainInst) {

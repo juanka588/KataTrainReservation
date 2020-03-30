@@ -44,9 +44,9 @@ public class WebTicketManagerTest {
         final int nbSeats = 1;
 
         final String reservation = sut.reserve(train, nbSeats);
-        assertEquals("{\"trainId\": \"express_2000\", \"bookingReference\": \"" + NO_BOOKING_REFERENCE + "\", \"seats\":[]}", reservation);
+        assertEquals("{\"trainId\": \"express_2000\",\"bookingReference\": \"" + NO_BOOKING_REFERENCE + "\",\"seats\":[]}", reservation);
     }
-    
+
     @Ignore
     @Test
     public void reserve_givenSeveralSeats_theyShouldBeInTheSameCoach() {
