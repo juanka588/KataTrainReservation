@@ -8,6 +8,8 @@ import javax.ws.rs.client.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.stream.Collectors.joining;
+
 public class WebTicketManager {
 
     public static final String URI_BOOKING_REFERENCE = "http://localhost:8282";
@@ -30,14 +32,10 @@ public class WebTicketManager {
 
     public String reserve(String train, int nbSeats) {
         List<Seat> availableSeats = new ArrayList<Seat>();
-        int count = 0;
-        String result = "";
         String bookingRef;
 
         // get the train
         String jsonTrain = trainDataService.getTrain(train);
-
-        result = jsonTrain;
 
         Train trainInst = new Train(jsonTrain);
         if (trainHasEnoughSeats(nbSeats, trainInst)) {
@@ -46,7 +44,7 @@ public class WebTicketManager {
             // find seats to reserve
             for (int index = 0, i = 0; index < trainInst.getSeats().size(); index++) {
                 Seat each = (Seat) trainInst.getSeats().toArray()[index];
-                if (each.getBookingRef() == "") {
+                if (each.getBookingRef().isEmpty()) {
                     i++;
                     if (i <= nbSeats) {
                         availableSeats.add(each);
@@ -54,13 +52,9 @@ public class WebTicketManager {
                 }
             }
 
-            for (Seat a : availableSeats) {
-                count++;
-            }
-
             int reservedSeats = 0;
 
-            if (count != nbSeats) {
+            if (availableSeats.size() != nbSeats) {
                 return String.format("{\"trainId\": \"%s\", \"bookingReference\": \"\", \"seats\":[]}", train);
             } else {
                 StringBuilder sb = new StringBuilder("{\"trainId\": \"");
@@ -90,7 +84,7 @@ public class WebTicketManager {
                     trainDataService.doReservation(train, availableSeats, bookingRef);
 
                     sb.append("\"seats\":");
-                    sb.append(dumpSeats(availableSeats));
+                    sb.append(seatsToCommaSeparateValues(availableSeats));
                     sb.append("}");
 
 
@@ -107,24 +101,10 @@ public class WebTicketManager {
         return (trainInst.getReservedSeats() + seats) <= Math.floor(ThreasholdManager.getMaxRes() * trainInst.getMaxSeat());
     }
 
-    private String dumpSeats(List<Seat> seats) {
-        StringBuilder sb = new StringBuilder("[");
-
-        boolean firstTime = true;
-        for (Seat seat : seats) {
-            if (!firstTime) {
-                sb.append(", ");
-            } else {
-                firstTime = false;
-            }
-
-            sb.append(String.format("\"%s%s\"", seat.getSeatNumber(), seat.getCoachName()));
-        }
-
-        sb.append("]");
-
-        return sb.toString();
+    private String seatsToCommaSeparateValues(List<Seat> seats) {
+        return seats.stream()
+                .map(seat -> String.format("\"%s%s\"", seat.getSeatNumber(), seat.getCoachName()))
+                .collect(joining(", ", "[", "]"));
     }
-
 
 }
