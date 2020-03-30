@@ -1,5 +1,6 @@
 package coltrain;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -44,5 +45,19 @@ public class WebTicketManagerTest {
 
         final String reservation = sut.reserve(train, nbSeats);
         assertEquals("{\"trainId\": \"express_2000\", \"bookingReference\": \"" + NO_BOOKING_REFERENCE + "\", \"seats\":[]}", reservation);
+    }
+    
+    @Ignore
+    @Test
+    public void reserve_givenSeveralSeats_theyShouldBeInTheSameCoach() {
+        final BookingReferenceService bookingReferenceService = new FakeBookingReferenceService();
+        final TrainDataService trainDataService = new FakeTrainDataService(
+                TrainTopology.SIX_SEATS_ONE_TAKEN_THREE_COACHES);
+        final WebTicketManager sut = new WebTicketManager(bookingReferenceService, trainDataService);
+        final String train = "express_2000";
+        final int nbSeats = 2;
+
+        final String reservation = sut.reserve(train, nbSeats);
+        assertEquals("{\"trainId\": \"express_2000\", \"bookingReference\": \"" + BOOKING_REFERENCE + "\", \"seats\":[\"1B\", \"2B\"]}", reservation);
     }
 }
