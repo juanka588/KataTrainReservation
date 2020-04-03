@@ -30,4 +30,8 @@ public class Seat {
     public String getCoachName() {
         return this.coach;
     }
+
+    public boolean isBooked() {
+        return !this.bookingRef.isEmpty();
+    }
 }

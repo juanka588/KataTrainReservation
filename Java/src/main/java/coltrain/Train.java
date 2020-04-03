@@ -6,11 +6,13 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Train {
     private final List<Seat> seats;
-    private int reservedSeats;
     private int maxSeat = 0;
 
     public Train(final String trainTopol) {
@@ -25,13 +27,13 @@ public class Train {
         final Set<Map.Entry<String, JsonValue>> allStuffs = parsed.getJsonObject("seats").entrySet();
 
 
-        this.reservedSeats = 0;
+        int reservedSeats = 0;
         for (Map.Entry<String, JsonValue> stuff : allStuffs) {
             final JsonObject seat = stuff.getValue().asJsonObject();
-             e= new Seat(seat.getString("coach"), Integer.parseInt(seat.getString("seat_number")));
+             e = new Seat(seat.getString("coach"), Integer.parseInt(seat.getString("seat_number")));
             this.seats.add(e);
             if(!seat.getString("booking_reference").isEmpty()){
-                this.reservedSeats++;
+                reservedSeats++;
             }
             this.maxSeat++;
 
@@ -46,7 +48,9 @@ public class Train {
     }
 
     public int getReservedSeats() {
-        return this.reservedSeats;
+        return Math.toIntExact(seats.stream()
+                .filter(Seat::isBooked)
+                .count());
     }
 
     public int getMaxSeat() {

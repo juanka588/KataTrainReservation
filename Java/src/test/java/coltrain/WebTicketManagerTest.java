@@ -74,6 +74,6 @@ public class WebTicketManagerTest {
         assertEquals("{\"trainId\": \"express_2000\",\"bookingReference\": \"" + BOOKING_REFERENCE + "\",\"seats\":[\"2A\"]}", reservation);
     }
 
-    //TODO couvrir 100% des branches - isolate the JSON and manipulate domain object - and more
+    //TODO refacto - isolate the JSON and manipulate domain object - and more
 
 }
