@@ -31,7 +31,7 @@ public class WebTicketManager {
         this.trainDataService = trainDataService;
     }
 
-    public String reserve(String train, int nbSeats) {
+    public String reserve(String train, int requestedNumberOfSeats) {
         List<Seat> availableSeats = new ArrayList<Seat>();
         String bookingRef;
 
@@ -39,20 +39,19 @@ public class WebTicketManager {
         String jsonTrain = trainDataService.getTrain(train);
 
         Train trainInst = new Train(jsonTrain);
-        if (trainHasEnoughSeats(nbSeats, trainInst)) {
+        if (trainHasEnoughSeats(requestedNumberOfSeats, trainInst)) {
 
             // find seats to reserve
-            for (int index = 0, i = 0; index < trainInst.getSeats().size(); index++) {
-                Seat each = (Seat) trainInst.getSeats().toArray()[index];
-                if (each.getBookingRef().isEmpty()) {
-                    i++;
-                    if (i <= nbSeats) {
-                        availableSeats.add(each);
-                    }
+            final List<Seat> seats = trainInst.getSeats();
+            int numberOfSeatsAlreadyBooked = 0;
+            for (Seat seat : seats) {
+                if (seat.getBookingRef().isEmpty() && numberOfSeatsAlreadyBooked < requestedNumberOfSeats) {
+                    availableSeats.add(seat);
+                    numberOfSeatsAlreadyBooked++;
                 }
             }
 
-            if (availableSeats.size() != nbSeats) {
+            if (availableSeats.size() != requestedNumberOfSeats) {
                 return String.format("{\"trainId\": \"%s\", \"bookingReference\": \"\", \"seats\":[]}", train);
             } else {
 
@@ -64,7 +63,7 @@ public class WebTicketManager {
                 }
 
 
-                if (availableSeats.size() == nbSeats) {
+                if (availableSeats.size() == requestedNumberOfSeats) {
                     trainCaching.save(train, trainInst, bookingRef);
                     trainDataService.doReservation(train, availableSeats, bookingRef);
                     return toReservationJsonString(train, availableSeats, bookingRef);

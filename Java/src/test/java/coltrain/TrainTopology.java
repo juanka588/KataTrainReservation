@@ -19,4 +19,10 @@ public class TrainTopology {
             "\"1C\": {\"booking_reference\": \"\", \"seat_number\": \"5\", \"coach\": \"C\"}," +
             "\"2C\": {\"booking_reference\": \"\", \"seat_number\": \"6\", \"coach\": \"C\"}}" +
             "}";
+
+    public static final String THREE_SEATS_ONE_TAKEN = "{\"seats\": {" +
+            "\"1A\": {\"booking_reference\": \"bookref\", \"seat_number\": \"1\", \"coach\": \"A\"}," +
+            "\"2A\": {\"booking_reference\": \"\", \"seat_number\": \"2\", \"coach\": \"A\"}," +
+            "\"3A\": {\"booking_reference\": \"\", \"seat_number\": \"3\", \"coach\": \"A\"}}" +
+            "}";
 }

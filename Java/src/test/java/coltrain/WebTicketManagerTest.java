@@ -47,7 +47,7 @@ public class WebTicketManagerTest {
         assertEquals("{\"trainId\": \"express_2000\",\"bookingReference\": \"" + NO_BOOKING_REFERENCE + "\",\"seats\":[]}", reservation);
     }
 
-    @Ignore
+    @Ignore("break a business rule that we need to implement")
     @Test
     public void reserve_givenSeveralSeats_theyShouldBeInTheSameCoach() {
         final BookingReferenceService bookingReferenceService = new FakeBookingReferenceService();
@@ -60,4 +60,20 @@ public class WebTicketManagerTest {
         final String reservation = sut.reserve(train, nbSeats);
         assertEquals("{\"trainId\": \"express_2000\", \"bookingReference\": \"" + BOOKING_REFERENCE + "\", \"seats\":[\"1B\", \"2B\"]}", reservation);
     }
+
+    @Test
+    public void reserve_givenOneSeatBooked_itShouldReturnASeat() {
+        final BookingReferenceService bookingReferenceService = new FakeBookingReferenceService();
+        final TrainDataService trainDataService = new FakeTrainDataService(
+                TrainTopology.THREE_SEATS_ONE_TAKEN);
+        final WebTicketManager sut = new WebTicketManager(bookingReferenceService, trainDataService);
+        final String train = "express_2000";
+        final int nbSeats = 1;
+
+        final String reservation = sut.reserve(train, nbSeats);
+        assertEquals("{\"trainId\": \"express_2000\",\"bookingReference\": \"" + BOOKING_REFERENCE + "\",\"seats\":[\"2A\"]}", reservation);
+    }
+
+    //TODO couvrir 100% des branches - isolate the JSON and manipulate domain object - and more
+
 }
