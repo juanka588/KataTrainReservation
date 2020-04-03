@@ -31,19 +31,13 @@ public class WebTicketManager {
         this.trainDataService = trainDataService;
     }
 
-    public String reserve(String train, int requestedSeats) {
-        List<Seat> reservedSeats = new ArrayList<Seat>();
-        String bookingRef;
-
-        // get the train
-        String jsonTrain = trainDataService.getTrain(train);
-
-        Train trainInst = new Train(jsonTrain);
-        if (trainHasEnoughSeats(requestedSeats, trainInst)) {
-
+    public String reserve(String trainId, int requestedSeats) {
+        final Train train = trainDataService.getTrain(trainId);
+        if (trainHasEnoughSeats(requestedSeats, train)) {
             // find seats to reserve
-            final List<Seat> seats = trainInst.getSeats();
+            final List<Seat> seats = train.getSeats();
             int numberOfSeatsAlreadyBooked = 0;
+            final List<Seat> reservedSeats = new ArrayList<>();
             for (Seat seat : seats) {
                 if (seat.getBookingRef().isEmpty() && numberOfSeatsAlreadyBooked < requestedSeats) {
                     reservedSeats.add(seat);
@@ -52,18 +46,18 @@ public class WebTicketManager {
             }
 
             Client client = ClientBuilder.newClient(new ClientConfig().register(LoggingFilter.class));
-            bookingRef = bookingReferenceService.getBookRef(client);
+            String bookingRef = bookingReferenceService.getBookRef(client);
 
             for (Seat availableSeat : reservedSeats) {
                 availableSeat.setBookingRef(bookingRef);
             }
 
-            trainCaching.save(train, trainInst, bookingRef);
-            trainDataService.doReservation(train, reservedSeats, bookingRef);
-            return toReservationJsonString(train, reservedSeats, bookingRef);
+            trainCaching.save(trainId, train, bookingRef);
+            trainDataService.doReservation(trainId, reservedSeats, bookingRef);
+            return toReservationJsonString(trainId, reservedSeats, bookingRef);
         }
 
-        return toReservationJsonString(train, Collections.emptyList(), "");
+        return toReservationJsonString(trainId, Collections.emptyList(), "");
 
     }
 

@@ -13,8 +13,8 @@ public class FakeTrainDataService implements TrainDataService {
     }
 
     @Override
-    public String getTrain(String train) {
-        return this.topology;
+    public Train getTrain(String train) {
+        return TrainDataServiceImpl.adaptTrainTopology(topology);
     }
 
     @Override
