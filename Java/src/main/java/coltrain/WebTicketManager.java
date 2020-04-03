@@ -31,44 +31,36 @@ public class WebTicketManager {
         this.trainDataService = trainDataService;
     }
 
-    public String reserve(String train, int requestedNumberOfSeats) {
-        List<Seat> availableSeats = new ArrayList<Seat>();
+    public String reserve(String train, int requestedSeats) {
+        List<Seat> reservedSeats = new ArrayList<Seat>();
         String bookingRef;
 
         // get the train
         String jsonTrain = trainDataService.getTrain(train);
 
         Train trainInst = new Train(jsonTrain);
-        if (trainHasEnoughSeats(requestedNumberOfSeats, trainInst)) {
+        if (trainHasEnoughSeats(requestedSeats, trainInst)) {
 
             // find seats to reserve
             final List<Seat> seats = trainInst.getSeats();
             int numberOfSeatsAlreadyBooked = 0;
             for (Seat seat : seats) {
-                if (seat.getBookingRef().isEmpty() && numberOfSeatsAlreadyBooked < requestedNumberOfSeats) {
-                    availableSeats.add(seat);
+                if (seat.getBookingRef().isEmpty() && numberOfSeatsAlreadyBooked < requestedSeats) {
+                    reservedSeats.add(seat);
                     numberOfSeatsAlreadyBooked++;
                 }
             }
 
-            if (availableSeats.size() != requestedNumberOfSeats) {
-                return String.format("{\"trainId\": \"%s\", \"bookingReference\": \"\", \"seats\":[]}", train);
-            } else {
+            Client client = ClientBuilder.newClient(new ClientConfig().register(LoggingFilter.class));
+            bookingRef = bookingReferenceService.getBookRef(client);
 
-                Client client = ClientBuilder.newClient(new ClientConfig().register(LoggingFilter.class));
-                bookingRef = bookingReferenceService.getBookRef(client);
-
-                for (Seat availableSeat : availableSeats) {
-                    availableSeat.setBookingRef(bookingRef);
-                }
-
-
-                if (availableSeats.size() == requestedNumberOfSeats) {
-                    trainCaching.save(train, trainInst, bookingRef);
-                    trainDataService.doReservation(train, availableSeats, bookingRef);
-                    return toReservationJsonString(train, availableSeats, bookingRef);
-                }
+            for (Seat availableSeat : reservedSeats) {
+                availableSeat.setBookingRef(bookingRef);
             }
+
+            trainCaching.save(train, trainInst, bookingRef);
+            trainDataService.doReservation(train, reservedSeats, bookingRef);
+            return toReservationJsonString(train, reservedSeats, bookingRef);
         }
 
         return toReservationJsonString(train, Collections.emptyList(), "");
