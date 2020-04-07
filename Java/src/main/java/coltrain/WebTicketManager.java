@@ -13,16 +13,12 @@ public class WebTicketManager {
     public static final String URI_TRAIN_DATA = "http://localhost:8181";
     private final BookingReferenceService bookingReferenceService;
     private final TrainDataService trainDataService;
-    private TrainCaching trainCaching;
 
     public WebTicketManager() {
         this(new BookingReferenceServiceRest(URI_BOOKING_REFERENCE), new TrainDataServiceImpl(URI_TRAIN_DATA));
     }
 
     public WebTicketManager(BookingReferenceService bookingReferenceService, TrainDataService trainDataService) {
-        this.trainCaching = new TrainCaching();
-        this.trainCaching.clear();
-
         this.bookingReferenceService = bookingReferenceService;
         this.trainDataService = trainDataService;
     }
@@ -36,7 +32,6 @@ public class WebTicketManager {
                 final String bookingRef = bookingReferenceService.getBookingReference();
                 reservationAttempt.assignBookingReference(bookingRef);
 
-                trainCaching.save(trainId, train, bookingRef);
                 trainDataService.doReservation(trainId, reservationAttempt.getAvailableSeats(), bookingRef);
                 return toReservationJsonString(trainId, reservationAttempt.getAvailableSeats(), bookingRef);
             }
