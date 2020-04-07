@@ -1,11 +1,7 @@
 package coltrain;
 
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.filter.LoggingFilter;
 import coltrain.api.models.Seat;
 
-import javax.ws.rs.client.*;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,26 +31,16 @@ public class WebTicketManager {
         final Train train = trainDataService.getTrain(trainId);
         if (train.doNotExceedCapacityThreshold(requestedSeats)) {
             // find seats to reserve
-            final List<Seat> seats = train.getSeats();
-            int numberOfSeatsAlreadyBooked = 0;
-            final List<Seat> reservedSeats = new ArrayList<>();
-            for (Seat seat : seats) {
-                if (seat.getBookingRef().isEmpty() && numberOfSeatsAlreadyBooked < requestedSeats) {
-                    reservedSeats.add(seat);
-                    numberOfSeatsAlreadyBooked++;
-                }
-            }
+            final List<Seat> availableSeats = train.findAvailableSeats(requestedSeats);
+            String bookingRef = bookingReferenceService.getBookingReference();
 
-            Client client = ClientBuilder.newClient(new ClientConfig().register(LoggingFilter.class));
-            String bookingRef = bookingReferenceService.getBookRef(client);
-
-            for (Seat availableSeat : reservedSeats) {
+            for (Seat availableSeat : availableSeats) {
                 availableSeat.setBookingRef(bookingRef);
             }
 
             trainCaching.save(trainId, train, bookingRef);
-            trainDataService.doReservation(trainId, reservedSeats, bookingRef);
-            return toReservationJsonString(trainId, reservedSeats, bookingRef);
+            trainDataService.doReservation(trainId, availableSeats, bookingRef);
+            return toReservationJsonString(trainId, availableSeats, bookingRef);
         }
 
         return toReservationJsonString(trainId, Collections.emptyList(), "");

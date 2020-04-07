@@ -2,6 +2,7 @@ package coltrain;
 
 import coltrain.api.models.Seat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Train {
@@ -28,5 +29,18 @@ public class Train {
 
     public boolean doNotExceedCapacityThreshold(int requestedSeats) {
         return (getReservedSeats() + requestedSeats) <= Math.floor(CAPACITY_THRESHOLD * getMaxSeat());
+    }
+
+    public List<Seat> findAvailableSeats(int requestedSeats) {
+        final List<Seat> seats = getSeats();
+        int numberOfSeatsAlreadyBooked = 0;
+        final List<Seat> availableSeats = new ArrayList<>();
+        for (Seat seat : seats) {
+            if (seat.getBookingRef().isEmpty() && numberOfSeatsAlreadyBooked < requestedSeats) {
+                availableSeats.add(seat);
+                numberOfSeatsAlreadyBooked++;
+            }
+        }
+        return availableSeats;
     }
 }
