@@ -31,7 +31,7 @@ public class Train {
         return (getReservedSeats() + requestedSeats) <= Math.floor(CAPACITY_THRESHOLD * getMaxSeat());
     }
 
-    public List<Seat> findAvailableSeats(int requestedSeats) {
+    public ReservationAttempt buildReservationAttempt(int requestedSeats) {
         final List<Seat> seats = getSeats();
         int numberOfSeatsAlreadyBooked = 0;
         final List<Seat> availableSeats = new ArrayList<>();
@@ -41,6 +41,6 @@ public class Train {
                 numberOfSeatsAlreadyBooked++;
             }
         }
-        return availableSeats;
+        return new ReservationAttempt(availableSeats);
     }
 }

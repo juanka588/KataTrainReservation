@@ -31,16 +31,16 @@ public class WebTicketManager {
         final Train train = trainDataService.getTrain(trainId);
         if (train.doNotExceedCapacityThreshold(requestedSeats)) {
             // find seats to reserve
-            final List<Seat> availableSeats = train.findAvailableSeats(requestedSeats);
+            final ReservationAttempt reservationAttempt = train.buildReservationAttempt(requestedSeats);
             String bookingRef = bookingReferenceService.getBookingReference();
 
-            for (Seat availableSeat : availableSeats) {
+            for (Seat availableSeat : reservationAttempt.getAvailableSeats()) {
                 availableSeat.setBookingRef(bookingRef);
             }
 
             trainCaching.save(trainId, train, bookingRef);
-            trainDataService.doReservation(trainId, availableSeats, bookingRef);
-            return toReservationJsonString(trainId, availableSeats, bookingRef);
+            trainDataService.doReservation(trainId, reservationAttempt.getAvailableSeats(), bookingRef);
+            return toReservationJsonString(trainId, reservationAttempt.getAvailableSeats(), bookingRef);
         }
 
         return toReservationJsonString(trainId, Collections.emptyList(), "");
