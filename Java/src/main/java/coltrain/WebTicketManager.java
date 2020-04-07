@@ -33,11 +33,8 @@ public class WebTicketManager {
             final ReservationAttempt reservationAttempt = train.buildReservationAttempt(requestedSeats);
 
             if (reservationAttempt.isFulfilled()) {
-                String bookingRef = bookingReferenceService.getBookingReference();
-
-                for (Seat availableSeat : reservationAttempt.getAvailableSeats()) {
-                    availableSeat.setBookingRef(bookingRef);
-                }
+                final String bookingRef = bookingReferenceService.getBookingReference();
+                reservationAttempt.assignBookingReference(bookingRef);
 
                 trainCaching.save(trainId, train, bookingRef);
                 trainDataService.doReservation(trainId, reservationAttempt.getAvailableSeats(), bookingRef);
