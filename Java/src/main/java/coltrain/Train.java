@@ -2,29 +2,42 @@ package coltrain;
 
 import coltrain.api.models.Seat;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import static java.util.stream.Collectors.*;
 
 public class Train {
     private static final double CAPACITY_THRESHOLD = 0.70;
-    private final List<Seat> seats;
+    private final Map<String, Coach> coaches;
 
     public Train(List<Seat> seats) {
-        this.seats = seats;
+        this.coaches = new HashMap<>();
+        for (Seat seat : seats) {
+            final String coachName = seat.getCoachName();
+            if (!this.coaches.containsKey(coachName)) {
+                coaches.put(coachName, new Coach());
+            }
+            coaches.get(coachName).addSeat(seat);
+        }
     }
 
     public List<Seat> getSeats() {
-        return this.seats;
+        return this.coaches
+                .values()
+                .stream()
+                .map(Coach::getSeats)
+                .flatMap(Collection::stream)
+                .collect(toList());
     }
 
     public int getReservedSeats() {
-        return Math.toIntExact(seats.stream()
+        return Math.toIntExact(getSeats().stream()
                 .filter(Seat::isBooked)
                 .count());
     }
 
     public int getMaxSeat() {
-        return this.seats.size();
+        return getSeats().size();
     }
 
     public boolean doNotExceedCapacityThreshold(int requestedSeats) {
@@ -43,4 +56,5 @@ public class Train {
         }
         return new ReservationAttempt(availableSeats, requestedSeats);
     }
+
 }
