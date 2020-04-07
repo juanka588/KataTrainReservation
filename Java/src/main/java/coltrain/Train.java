@@ -5,6 +5,7 @@ import coltrain.api.models.Seat;
 import java.util.List;
 
 public class Train {
+    private static final double CAPACITY_THRESHOLD = 0.70;
     private final List<Seat> seats;
 
     public Train(List<Seat> seats) {
@@ -23,5 +24,9 @@ public class Train {
 
     public int getMaxSeat() {
         return this.seats.size();
+    }
+
+    public boolean doNotExceedCapacityThreshold(int requestedSeats) {
+        return (getReservedSeats() + requestedSeats) <= Math.floor(CAPACITY_THRESHOLD * getMaxSeat());
     }
 }

@@ -33,7 +33,7 @@ public class WebTicketManager {
 
     public String reserve(String trainId, int requestedSeats) {
         final Train train = trainDataService.getTrain(trainId);
-        if (trainHasEnoughSeats(requestedSeats, train)) {
+        if (train.doNotExceedCapacityThreshold(requestedSeats)) {
             // find seats to reserve
             final List<Seat> seats = train.getSeats();
             int numberOfSeatsAlreadyBooked = 0;
@@ -70,10 +70,6 @@ public class WebTicketManager {
                 "\"seats\":" +
                 seatsToCommaSeparateValues(availableSeats) +
                 "}";
-    }
-
-    public boolean trainHasEnoughSeats(int seats, Train trainInst) {
-        return (trainInst.getReservedSeats() + seats) <= Math.floor(ThreasholdManager.getMaxRes() * trainInst.getMaxSeat());
     }
 
     private String seatsToCommaSeparateValues(List<Seat> seats) {

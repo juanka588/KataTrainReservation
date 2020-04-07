@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface TrainDataService {
 
-    Train getTrain(String train);
+    Train getTrain(String trainId);
 
     void doReservation(String train, List<Seat> availableSeats, String bookingRef);
 }
