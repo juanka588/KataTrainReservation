@@ -9,10 +9,12 @@ public class ReservationAttempt {
 
     private List<Seat> availableSeats;
     private int requestedSeats;
+    private String bookingRef;
 
     public ReservationAttempt(List<Seat> availableSeats, int requestedSeats) {
         this.availableSeats = availableSeats;
         this.requestedSeats = requestedSeats;
+        this.bookingRef = "";
     }
 
     public static ReservationAttempt failed(int requestedSeats) {
@@ -28,8 +30,17 @@ public class ReservationAttempt {
     }
 
     public void assignBookingReference(String bookingRef) {
+        this.bookingRef = bookingRef;
         for (Seat availableSeat : availableSeats) {
-            availableSeat.setBookingRef(bookingRef);
+            availableSeat.setBookingRef(this.bookingRef);
         }
+    }
+
+    public Reservation confirm(String trainId) {
+        if (!this.matchesRequest()) {
+            throw new IllegalArgumentException("Failed ReservationAttempt cannot be confirmed");
+        }
+
+        return new Reservation(this.bookingRef, trainId, this.availableSeats);
     }
 }

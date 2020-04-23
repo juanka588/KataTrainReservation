@@ -83,7 +83,7 @@ public class TrainDataServiceImpl implements TrainDataService {
         final List<Seat> seats = new ArrayList<>();
         for (Map.Entry<String, JsonValue> seatData : seatsData) {
             final JsonObject seatJson = seatData.getValue().asJsonObject();
-            final Seat seat = new Seat(seatJson.getString("coach"), Integer.parseInt(seatJson.getString("seat_number")));
+            final Seat seat = new Seat(Integer.parseInt(seatJson.getString("seat_number")), seatJson.getString("coach"));
             seats.add(seat);
 
             if(!seatJson.getString("booking_reference").isEmpty()) {

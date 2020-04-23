@@ -1,22 +1,15 @@
 package coltrain.api.models;
 
+import java.util.Objects;
+
 public class Seat {
     private final String coach;
     private final int seatNumber;
     private String bookingRef = "";
 
-    public Seat(String coach, int seatNumber) {
+    public Seat(int seatNumber, String coach) {
         this.coach = coach;
         this.seatNumber = seatNumber;
-    }
-
-    public boolean equals(Object o) {
-        Seat other = (Seat) o;
-        return coach.equals(other.getCoachName()) && seatNumber == other.getSeatNumber();
-    }
-
-    public String getBookingRef() {
-        return this.bookingRef;
     }
 
     public void setBookingRef(final String bookingRef) {
@@ -37,5 +30,29 @@ public class Seat {
 
     public boolean isAvailable() {
         return this.bookingRef.isEmpty();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Seat seat = (Seat) o;
+        return seatNumber == seat.seatNumber &&
+                Objects.equals(coach, seat.coach) &&
+                Objects.equals(bookingRef, seat.bookingRef);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(coach, seatNumber, bookingRef);
+    }
+
+    @Override
+    public String toString() {
+        return "Seat{" +
+                "coach='" + coach + '\'' +
+                ", seatNumber=" + seatNumber +
+                ", bookingRef='" + bookingRef + '\'' +
+                '}';
     }
 }

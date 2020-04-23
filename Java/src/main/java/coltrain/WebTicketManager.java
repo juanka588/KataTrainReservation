@@ -1,10 +1,5 @@
 package coltrain;
 
-import coltrain.api.models.Seat;
-
-import java.util.Collections;
-import java.util.List;
-
 import static java.util.stream.Collectors.joining;
 
 public class WebTicketManager {
@@ -23,7 +18,7 @@ public class WebTicketManager {
         this.trainDataService = trainDataService;
     }
 
-    public String reserve(String trainId, int requestedSeats) {
+    public Reservation reserve(String trainId, int requestedSeats) {
         final Train train = trainDataService.getTrain(trainId);
         if (train.doNotExceedCapacityThreshold(requestedSeats)) {
             final ReservationAttempt reservationAttempt = train.buildReservationAttempt(requestedSeats);
@@ -33,29 +28,12 @@ public class WebTicketManager {
                 reservationAttempt.assignBookingReference(bookingRef);
 
                 trainDataService.doReservation(trainId, reservationAttempt.getAvailableSeats(), bookingRef);
-                return toReservationJsonString(trainId, reservationAttempt.getAvailableSeats(), bookingRef);
+                return reservationAttempt.confirm(trainId);
             }
         }
 
-        return toReservationJsonString(trainId, Collections.emptyList(), "");
+        return Reservation.failedReservation(trainId);
 
-    }
-
-    public String toReservationJsonString(String train, List<Seat> availableSeats, String bookingRef) {
-        return "{\"trainId\": \"" + train +
-                "\"," +
-                "\"bookingReference\": \"" +
-                bookingRef +
-                "\"," +
-                "\"seats\":" +
-                seatsToCommaSeparateValues(availableSeats) +
-                "}";
-    }
-
-    private String seatsToCommaSeparateValues(List<Seat> seats) {
-        return seats.stream()
-                .map(seat -> String.format("\"%s%s\"", seat.getSeatNumber(), seat.getCoachName()))
-                .collect(joining(", ", "[", "]"));
     }
 
 }
