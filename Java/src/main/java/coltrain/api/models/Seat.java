@@ -34,4 +34,8 @@ public class Seat {
     public boolean isBooked() {
         return !this.bookingRef.isEmpty();
     }
+
+    public boolean isAvailable() {
+        return this.bookingRef.isEmpty();
+    }
 }

@@ -45,16 +45,15 @@ public class Train {
     }
 
     public ReservationAttempt buildReservationAttempt(final int requestedSeats) {
-        final List<Seat> seats = getSeats();
-        int numberOfSeatsAlreadyBooked = 0;
-        final List<Seat> availableSeats = new ArrayList<>();
-        for (Seat seat : seats) {
-            if (seat.getBookingRef().isEmpty() && numberOfSeatsAlreadyBooked < requestedSeats) {
-                availableSeats.add(seat);
-                numberOfSeatsAlreadyBooked++;
+
+        for (Coach coach : this.coaches.values()) {
+            final ReservationAttempt reservationAttempt = coach.buildReservationAttempt(requestedSeats);
+            if (reservationAttempt.matchesRequest()) {
+                return reservationAttempt;
             }
         }
-        return new ReservationAttempt(availableSeats, requestedSeats);
+
+        return ReservationAttempt.failed(requestedSeats);
     }
 
 }

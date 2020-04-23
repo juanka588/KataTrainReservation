@@ -2,6 +2,7 @@ package coltrain;
 
 import coltrain.api.models.Seat;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ReservationAttempt {
@@ -14,11 +15,15 @@ public class ReservationAttempt {
         this.requestedSeats = requestedSeats;
     }
 
+    public static ReservationAttempt failed(int requestedSeats) {
+        return new ReservationAttempt(Collections.emptyList(), requestedSeats);
+    }
+
     public List<Seat> getAvailableSeats() {
         return availableSeats;
     }
 
-    public boolean isFulfilled() {
+    public boolean matchesRequest() {
         return availableSeats.size() == requestedSeats;
     }
 

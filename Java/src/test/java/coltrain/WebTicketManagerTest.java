@@ -47,7 +47,6 @@ public class WebTicketManagerTest {
         assertEquals("{\"trainId\": \"express_2000\",\"bookingReference\": \"" + NO_BOOKING_REFERENCE + "\",\"seats\":[]}", reservation);
     }
 
-    @Ignore("break a business rule that we need to implement")
     @Test
     public void reserve_givenSeveralSeats_theyShouldBeInTheSameCoach() {
         final BookingReferenceService bookingReferenceService = new FakeBookingReferenceService();
@@ -58,7 +57,7 @@ public class WebTicketManagerTest {
         final int nbSeats = 2;
 
         final String reservation = sut.reserve(train, nbSeats);
-        assertEquals("{\"trainId\": \"express_2000\", \"bookingReference\": \"" + BOOKING_REFERENCE + "\", \"seats\":[\"1B\", \"2B\"]}", reservation);
+        assertEquals("{\"trainId\": \"express_2000\",\"bookingReference\": \"" + BOOKING_REFERENCE + "\",\"seats\":[\"3B\", \"4B\"]}", reservation);
     }
 
     @Test

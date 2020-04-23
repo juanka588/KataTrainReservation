@@ -28,7 +28,7 @@ public class WebTicketManager {
         if (train.doNotExceedCapacityThreshold(requestedSeats)) {
             final ReservationAttempt reservationAttempt = train.buildReservationAttempt(requestedSeats);
 
-            if (reservationAttempt.isFulfilled()) {
+            if (reservationAttempt.matchesRequest()) {
                 final String bookingRef = bookingReferenceService.getBookingReference();
                 reservationAttempt.assignBookingReference(bookingRef);
 
