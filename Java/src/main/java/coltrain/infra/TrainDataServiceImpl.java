@@ -1,6 +1,8 @@
-package coltrain;
+package coltrain.infra;
 
-import coltrain.api.models.Seat;
+import coltrain.domain.Seat;
+import coltrain.domain.Train;
+import coltrain.domain.TrainDataService;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.filter.LoggingFilter;
 
@@ -18,9 +20,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class TrainDataServiceImpl implements TrainDataService {
-    final String uri;
+    private final String uri;
 
-    public TrainDataServiceImpl(String uri) {
+    TrainDataServiceImpl(String uri) {
         this.uri = uri;
     }
 

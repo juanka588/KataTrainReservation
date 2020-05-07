@@ -1,6 +1,9 @@
-package coltrain;
+package coltrain.fake;
 
-import coltrain.api.models.Seat;
+import coltrain.domain.Seat;
+import coltrain.domain.Train;
+import coltrain.domain.TrainDataService;
+import coltrain.infra.TrainDataServiceImpl;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import coltrain.api.controllers.ReservationsController;
+import coltrain.infra.ReservationRestResource;
 
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
@@ -12,7 +12,7 @@ public class Launcher {
 
     public static void main(String[] args) {
         ResourceConfig rc = new ResourceConfig();
-        rc.registerClasses(ReservationsController.class);
+        rc.registerClasses(ReservationRestResource.class);
 
         try {
             HttpServer server = GrizzlyHttpServerFactory.createHttpServer(BASE_URI, rc);

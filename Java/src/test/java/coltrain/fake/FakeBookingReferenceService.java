@@ -1,4 +1,6 @@
-package coltrain;
+package coltrain.fake;
+
+import coltrain.domain.BookingReferenceService;
 
 public class FakeBookingReferenceService implements BookingReferenceService {
 

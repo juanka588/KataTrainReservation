@@ -1,6 +1,4 @@
-package coltrain;
-
-import coltrain.api.models.Seat;
+package coltrain.domain;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +10,7 @@ public class Reservation {
     final private String trainId;
     final private List<Seat> seats;
 
-    Reservation(String bookingReference, String trainId, List<Seat> seats) {
+    public Reservation(String bookingReference, String trainId, List<Seat> seats) {
 
         this.bookingReference = bookingReference;
         this.trainId = trainId;

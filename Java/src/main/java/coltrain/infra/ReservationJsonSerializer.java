@@ -1,20 +1,15 @@
-package coltrain;
+package coltrain.infra;
 
-import coltrain.api.models.Seat;
+import coltrain.domain.Seat;
+import coltrain.domain.Reservation;
 
 import java.util.List;
 
 import static java.util.stream.Collectors.joining;
 
-public class ReservationTransformer {
-    private final Reservation reservation;
+class ReservationJsonSerializer {
 
-    ReservationTransformer(Reservation reservation) {
-        this.reservation = reservation;
-    }
-
-
-    public static String toReservationJsonString(Reservation reservation) {
+    String toReservationJsonString(Reservation reservation) {
         return "{\"trainId\": \"" + reservation.getTrainId() +
                 "\"," +
                 "\"bookingReference\": \"" +
@@ -25,7 +20,7 @@ public class ReservationTransformer {
                 "}";
     }
 
-    public static String seatsToCommaSeparateValues(List<Seat> seats) {
+    private String seatsToCommaSeparateValues(List<Seat> seats) {
         return seats.stream()
                 .map(seat -> String.format("\"%s%s\"", seat.getSeatNumber(), seat.getCoachName()))
                 .collect(joining(", ", "[", "]"));

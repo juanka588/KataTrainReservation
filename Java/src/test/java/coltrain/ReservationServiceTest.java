@@ -1,6 +1,8 @@
 package coltrain;
 
-import coltrain.api.models.Seat;
+import coltrain.domain.*;
+import coltrain.fake.FakeBookingReferenceService;
+import coltrain.fake.FakeTrainDataService;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -8,12 +10,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 import static org.junit.Assert.assertEquals;
 
-public class WebTicketManagerTest {
+public class ReservationServiceTest {
 
     public static final String BOOKING_REFERENCE = "bookRef";
     public static final String NO_BOOKING_REFERENCE = "";
@@ -24,7 +25,7 @@ public class WebTicketManagerTest {
     public void reserve_givenZeroSeats_itShouldReturnNoSeats() {
         final BookingReferenceService bookingReferenceService = new FakeBookingReferenceService();
         final TrainDataService trainDataService = new FakeTrainDataService(TrainTopology.EMPTY_TRAIN_WITH_TWO_SEATS);
-        final WebTicketManager sut = new WebTicketManager(bookingReferenceService, trainDataService);
+        final ReservationService sut = new ReservationService(bookingReferenceService, trainDataService);
         final String trainId = "express_2000";
         final int nbSeats = 0;
 
@@ -37,7 +38,7 @@ public class WebTicketManagerTest {
     public void reserve_givenOneSeat_itShouldReturnOneSeat() {
         final BookingReferenceService bookingReferenceService = new FakeBookingReferenceService();
         final TrainDataService trainDataService = new FakeTrainDataService(TrainTopology.EMPTY_TRAIN_WITH_TWO_SEATS);
-        final WebTicketManager sut = new WebTicketManager(bookingReferenceService, trainDataService);
+        final ReservationService sut = new ReservationService(bookingReferenceService, trainDataService);
         final int nbSeats = 1;
 
         final Reservation reservation = sut.reserve(TRAIN_ID, nbSeats);
@@ -61,7 +62,7 @@ public class WebTicketManagerTest {
         final BookingReferenceService bookingReferenceService = new FakeBookingReferenceService();
         final TrainDataService trainDataService = new FakeTrainDataService(
                 TrainTopology.TWO_SEATS_ONE_TAKEN);
-        final WebTicketManager sut = new WebTicketManager(bookingReferenceService, trainDataService);
+        final ReservationService sut = new ReservationService(bookingReferenceService, trainDataService);
         final int nbSeats = 1;
 
         final Reservation reservation = sut.reserve(TRAIN_ID, nbSeats);
@@ -74,7 +75,7 @@ public class WebTicketManagerTest {
         final BookingReferenceService bookingReferenceService = new FakeBookingReferenceService();
         final TrainDataService trainDataService = new FakeTrainDataService(
                 TrainTopology.SIX_SEATS_ONE_TAKEN_THREE_COACHES);
-        final WebTicketManager sut = new WebTicketManager(bookingReferenceService, trainDataService);
+        final ReservationService sut = new ReservationService(bookingReferenceService, trainDataService);
         final int nbSeats = 2;
 
         final Reservation reservation = sut.reserve(TRAIN_ID, nbSeats);
@@ -86,7 +87,7 @@ public class WebTicketManagerTest {
         final BookingReferenceService bookingReferenceService = new FakeBookingReferenceService();
         final TrainDataService trainDataService = new FakeTrainDataService(
                 TrainTopology.THREE_SEATS_ONE_TAKEN);
-        final WebTicketManager sut = new WebTicketManager(bookingReferenceService, trainDataService);
+        final ReservationService sut = new ReservationService(bookingReferenceService, trainDataService);
         final int nbSeats = 1;
 
         final Reservation reservation = sut.reserve(TRAIN_ID, nbSeats);
