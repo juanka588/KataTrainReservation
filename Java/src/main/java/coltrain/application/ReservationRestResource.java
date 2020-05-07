@@ -1,7 +1,7 @@
-package coltrain.infra;
+package coltrain.application;
 
+import coltrain.Context;
 import coltrain.domain.Reservation;
-import coltrain.domain.ReservationService;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -13,13 +13,11 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ReservationRestResource {
-    private static final String URI_BOOKING_REFERENCE = "http://localhost:8282";
-    private static final String URI_TRAIN_DATA = "http://localhost:8181";
+
 
     @POST
     public String post(ReservationRequestDTO reservationRequest) {
-        final ReservationService manager = new ReservationService(new BookingReferenceServiceRest(URI_BOOKING_REFERENCE), new TrainDataServiceImpl(URI_TRAIN_DATA));
-        Reservation reserve = manager.reserve(reservationRequest.getTrainId(), reservationRequest.getNumberOfSeats());
+        Reservation reserve = Context.getReservationService().reserve(reservationRequest.getTrainId(), reservationRequest.getNumberOfSeats());
         return new ReservationJsonSerializer().toReservationJsonString(reserve);
     }
 

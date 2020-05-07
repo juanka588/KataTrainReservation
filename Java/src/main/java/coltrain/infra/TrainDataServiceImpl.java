@@ -22,7 +22,7 @@ import java.util.Set;
 public class TrainDataServiceImpl implements TrainDataService {
     private final String uri;
 
-    TrainDataServiceImpl(String uri) {
+    public TrainDataServiceImpl(String uri) {
         this.uri = uri;
     }
 

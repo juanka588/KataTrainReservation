@@ -1,4 +1,4 @@
-package coltrain.infra;
+package coltrain.application;
 
 import coltrain.domain.Seat;
 import coltrain.domain.Reservation;
@@ -7,9 +7,10 @@ import java.util.List;
 
 import static java.util.stream.Collectors.joining;
 
-class ReservationJsonSerializer {
+public class ReservationJsonSerializer {
 
-    String toReservationJsonString(Reservation reservation) {
+
+    public String toReservationJsonString(Reservation reservation) {
         return "{\"trainId\": \"" + reservation.getTrainId() +
                 "\"," +
                 "\"bookingReference\": \"" +
