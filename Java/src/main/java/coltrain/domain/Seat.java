@@ -1,4 +1,4 @@
-package coltrain.api.models;
+package coltrain.domain;
 
 import java.util.Objects;
 

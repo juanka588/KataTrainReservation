@@ -1,5 +1,6 @@
-package coltrain;
+package coltrain.infra;
 
+import coltrain.domain.BookingReferenceService;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.filter.LoggingFilter;
 
