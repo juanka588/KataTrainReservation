@@ -5,20 +5,26 @@ import org.glassfish.jersey.filter.LoggingFilter;
 import coltrain.api.models.Seat;
 
 import javax.ws.rs.client.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
 public class WebTicketManager {
 
-    private static String uriBookingReferenceService = "http://localhost:8282";
-    private static String uriTrainDataService = "http://localhost:8181";
+    static String uriBookingReferenceService = "http://localhost:8282";
+    static String uriTrainDataService = "http://localhost:8181";
+    private final TrainDataService trainDataService;
     private TrainCaching trainCaching;
+    private BookingReferenceService bookingReferenceService;
 
-    public WebTicketManager() {
+    public WebTicketManager(TrainDataService trainDataService, BookingReferenceService bookingReferenceService) {
+        this.bookingReferenceService = bookingReferenceService;
         this.trainCaching = new TrainCaching();
         this.trainCaching.clear();
+        this.trainDataService = trainDataService;
+    }
+
+    public WebTicketManager() {
+        this(new TrainDataServiceImpl(), new BookingReferenceServiceImpl());
     }
 
     public String reserve(String train, int seats) {
@@ -28,7 +34,7 @@ public class WebTicketManager {
         String bookingRef;
 
         // get the train
-        String jsonTrain = getTrain(train);
+        String jsonTrain = trainDataService.getTrain(train);
 
         result = jsonTrain;
 
@@ -61,7 +67,7 @@ public class WebTicketManager {
                 sb.append("\",");
 
                 Client client = ClientBuilder.newClient(new ClientConfig().register(LoggingFilter.class));
-                bookingRef = getBookRef(client);
+                bookingRef = bookingReferenceService.getBookRef(client);
 
                 for (Seat availableSeat : availableSeats) {
                     availableSeat.setBookingRef(bookingRef);
@@ -76,20 +82,7 @@ public class WebTicketManager {
                 if (numberOfReserv == seats) {
                     trainCaching.save(train, trainInst, bookingRef);
 
-                    client = ClientBuilder.newClient(new ClientConfig().register(LoggingFilter.class));
-                    WebTarget uri = client.target(uriTrainDataService).path("reserve");
-                    Invocation.Builder request = uri.request(MediaType.APPLICATION_JSON);
-
-                    String todo = "[TODO]";
-
-                    if (reservedSeats == 0) {
-                        System.out.println("Reserved seat(s): " + reservedSeats);
-                    }
-
-                    // HTTP POST
-                    Response post = request.post(Entity.entity(buildPostContent(train, bookingRef, availableSeats), MediaType.APPLICATION_JSON));
-
-                    assert post.getStatus() == Response.Status.OK.getStatusCode();
+                    trainDataService.doReservation(train, availableSeats, bookingRef);
 
                     sb.append("\"seats\":");
                     sb.append(dumpSeats(availableSeats));
@@ -124,51 +117,11 @@ public class WebTicketManager {
         return sb.toString();
     }
 
-    private static String buildPostContent(String trainId, String bookingRef, List<Seat> availableSeats) {
-        StringBuilder seats = new StringBuilder("[");
-
-        boolean firstTime = true;
-        for (Seat s : availableSeats) {
-            if (!firstTime) {
-                seats.append(", ");
-            } else {
-                firstTime = false;
-            }
-
-            seats.append(String.format("\"%s%s\"", s.getSeatNumber(), s.getCoachName()));
-        }
-
-        seats.append("]");
-
-
-        String result = String.format("{\"trainId\": \"%s\", \"bookingReference\": \"%s\", \"seats\":%s}",
-                trainId,
-                bookingRef,
-                seats.toString());
-        return result;
-
-    }
-
 
     private String getTrain(String train) {
-        Client client = ClientBuilder.newClient(new ClientConfig().register(LoggingFilter.class));
-        WebTarget webTarget = client.target(uriTrainDataService).path("data_for_train/" + train);
-        Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-        Response response = invocationBuilder.get();
-        assert response.getStatus() == Response.Status.OK.getStatusCode();
 
-        return response.readEntity(String.class);
+        return trainDataService.getTrain(train);
     }
 
-
-    private String getBookRef(Client client) {
-        WebTarget webTarget = client.target(uriBookingReferenceService).path("booking_reference");
-        Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-        Response response = invocationBuilder.get();
-
-        assert response.getStatus() == Response.Status.OK.getStatusCode();
-
-        return response.readEntity(String.class);
-    }
 
 }
