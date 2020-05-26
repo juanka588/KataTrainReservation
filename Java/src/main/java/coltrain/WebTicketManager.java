@@ -117,11 +117,4 @@ public class WebTicketManager {
         return sb.toString();
     }
 
-
-    private String getTrain(String train) {
-
-        return trainDataService.getTrain(train);
-    }
-
-
 }
